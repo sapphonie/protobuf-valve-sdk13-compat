@@ -10,7 +10,10 @@
 #ifndef GOOGLE_PROTOBUF_ARENA_H__
 #define GOOGLE_PROTOBUF_ARENA_H__
 
+#include <cstddef>
+#include <cstdint>
 #include <limits>
+#include <new>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -26,8 +29,10 @@ using type_info = ::type_info;
 #include <typeinfo>
 #endif
 
+#include "absl/base/attributes.h"
 #include "absl/log/absl_check.h"
 #include "google/protobuf/arena_align.h"
+#include "google/protobuf/arena_allocation_policy.h"
 #include "google/protobuf/port.h"
 #include "google/protobuf/serial_arena.h"
 #include "google/protobuf/thread_safe_arena.h"
@@ -48,6 +53,9 @@ class Message;  // defined in message.h
 class MessageLite;
 template <typename Key, typename T>
 class Map;
+namespace internal {
+struct RepeatedFieldBase;
+}  // namespace internal
 
 namespace arena_metrics {
 
@@ -210,7 +218,7 @@ class PROTOBUF_EXPORT PROTOBUF_ALIGNAS(8) Arena final {
       internal::ThreadSafeArena::kBlockHeaderSize +
       internal::ThreadSafeArena::kSerialArenaSize;
 
-  inline ~Arena() {}
+  inline ~Arena() = default;
 
   // API to create proto2 message objects on the arena. If the arena passed in
   // is nullptr, then a heap allocated object is returned. Type T must be a
