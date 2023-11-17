@@ -88,7 +88,19 @@ void RepeatedPtrFieldBase::Reserve(int capacity) {
 }
 
 void RepeatedPtrFieldBase::DestroyProtos() {
-  Destroy<GenericTypeHandler<MessageLite>>();
+  ABSL_DCHECK(NeedsDestroy());
+  using H = CommonHandler<GenericTypeHandler<MessageLite>>;
+  if (using_sso()) {
+    Delete<H>(tagged_rep_or_elem_, nullptr);
+  } else {
+    Rep* r = rep();
+    int n = r->allocated_size;
+    void** elems = r->elements;
+    for (int i = 0; i < n; i++) {
+      Delete<H>(elems[i], nullptr);
+    }
+    internal::SizedDelete(r, Capacity() * sizeof(elems[0]) + kRepHeaderSize);
+  }
 
   // TODO:  Eliminate this store when invoked from the destructor,
   // since it is dead.
