@@ -85,8 +85,26 @@
 #elif defined(__APPLE__)
 #include <libkern/OSByteOrder.h>
 #elif defined(__linux__) || defined(__ANDROID__) || defined(__CYGWIN__)
-#include <byteswap.h>  // IWYU pragma: export
+// HACK HACK HACK! tier0 has a file named byteswap, this should target
+// gcc's version of byteswap instead...
+#include <bits/byteswap.h>  // IWYU pragma: export
+
+
+// MORE HACKS! GCC 9 doesn't seem to have these defined anywhere so we have to define them........
+#ifndef bswap_16
+#define bswap_16(x) __builtin_bswap16(x)
 #endif
+
+#ifndef bswap_32
+#define bswap_32(x) __builtin_bswap32(x)
+#endif
+
+#ifndef bswap_64
+#define bswap_64(x) __builtin_bswap64(x)
+#endif
+
+#endif
+
 
 // Legacy: some users reference these (internal-only) macros even though we
 // don't need them any more.
