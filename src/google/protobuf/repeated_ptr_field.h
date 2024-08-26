@@ -642,7 +642,7 @@ class PROTOBUF_EXPORT RepeatedPtrFieldBase {
     void* elements[(std::numeric_limits<int>::max() - 2 * sizeof(int)) /
                    sizeof(void*)];
   };
-  static constexpr size_t kRepHeaderSize = offsetof(Rep, elements);
+  static constexpr size_t kRepHeaderSize = __builtin_offsetof(Rep, elements);
   Rep* rep_;
 
   template <typename TypeHandler>
